@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
 
-    <groupId>com.github.jtendermint</groupId>
+    <groupId>cawala</groupId>
     <artifactId>jabci</artifactId>
     <version>0.11.0-SNAPSHOT</version>
 
