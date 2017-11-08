@@ -58,6 +58,7 @@ public class TSocket extends ASocket {
     private final HashSet<SocketHandler> runningThreads = new HashSet<>();
 
     private boolean continueRunning = true;
+    private ServerSocket serverSocket; // need this reference to close it later
 
     /**
      * Start listening on the default ABCI port 46658
@@ -75,7 +76,8 @@ public class TSocket extends ASocket {
         TSOCKET_LOG.debug("starting serversocket");
         continueRunning = true;
         int socketcount = 0;
-        try (ServerSocket serverSocket = new ServerSocket(portNumber)) {
+        try {
+            serverSocket = new ServerSocket(portNumber);
             while (continueRunning) {
                 Socket clientSocket = serverSocket.accept();
                 String socketName = socketNameForCount(++socketcount);
@@ -88,6 +90,11 @@ public class TSocket extends ASocket {
             TSOCKET_LOG.debug("TSocket Stopped Running");
         } catch (IOException e) {
             TSOCKET_LOG.error("Exception caught when trying to listen on port " + portNumber + " or listening for a connection", e);
+        } finally {
+            if (serverSocket != null) {
+                try {serverSocket.close();}
+                catch (IOException e) {}
+            }
         }
     }
 
@@ -121,6 +128,10 @@ public class TSocket extends ASocket {
 
         runningThreads.clear();
         Thread.currentThread().interrupt();
+        if (serverSocket != null) {
+            try {serverSocket.close();}
+            catch (IOException e) {}
+        }
     }
 
     class SocketHandler extends Thread {
